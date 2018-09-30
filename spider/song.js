@@ -1,7 +1,7 @@
 let request = require('request'),
     cheerio = require('cheerio');
 
-let url = 'https://music.163.com/song?id=',
+let url = 'https://music.163.com/artist?id=', //歌手主页
     option = {
         method: 'GET',
         headers: {
@@ -11,27 +11,42 @@ let url = 'https://music.163.com/song?id=',
 
 module.exports = {
 
-    requestSong(songId) {
+    /**
+     * 根据歌手Id获取歌手主页热门歌曲
+     * @param { Number } singerId 歌手Id 
+     * @returns 热门歌曲
+     */
+    requestSong(singerId) {
 
-        option.url = `${url}${songId}`;
+        option.url = `${url}${singerId}`;
 
         return new Promise((resolve, reject) => {
 
             request(option, (error, res, body) => {
 
-                if (error) reject(error);
+                if (error) {
+                    reject(error);
+                    throw error;
+                };
 
                 let $ = cheerio.load(body),
-                    songIds = [];
+                    songlist = [];
 
-                $('.m-sglist.f-cb .f-thide:not(.s-fc4) a').each((i, item) => {
+                $('#hotsong-list tr td:nth-child(2)').each((i, item) => {
 
-                    songIds.push($(item).attr('href').match(/(?<==)\d+/, '')[0]);
+                    let songId = $(item).find('a')[0].attr('href').match(/(?<==)\d+/)[0],
+                        songName = $(item).find('b')[0].attr('title');
 
-                })
+                    songlist.push({
+                        'songId': songId,
+                        'songName': songName,
+                        'singerId': singerId
+                    });
 
-                console.log(`-------------- 歌曲 ${songId} 爬取完毕`);
-                resolve(songIds);
+                });
+
+                console.log(`-------------- 歌手 ${singerId} 爬取完毕`);
+                resolve(singerIds);
 
             })
 

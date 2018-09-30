@@ -4,6 +4,7 @@ let mongoose = require('mongoose'),
 let db = mongoose.connect("mongodb://127.0.0.1:27017/wy");
 
 let singerModal = mongoose.model('singer', screma.singerSchema),
+    songSchema = mongoose.model('song', screma.songSchema),
     commentModal = mongoose.model('comment', screma.commentSchema);
 
 let singer = [{
@@ -58,6 +59,27 @@ module.exports = {
             }
 
             console.log('成功  =====  歌手数据已存储');
+
+        });
+
+    },
+
+    /**
+     * 保存歌手接口
+     * @param { Array ,Object } 歌曲对象或对象数组
+     */
+    saveSong: function (data) {
+
+        songSchema.create(data, (err) => {
+
+            if (err) {
+
+                console.log('失败  =====  歌曲数据存储失败');
+                throw err;
+
+            }
+
+            console.log('成功  =====  歌曲数据已存储');
 
         });
 

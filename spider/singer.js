@@ -12,6 +12,11 @@ let url = 'https://music.163.com/discover/artist/cat?id=', //热门歌手
 
 module.exports = {
 
+    /**
+     * 根据歌手类型查询热门歌手
+     * @param { Number } catId 歌手类型 
+     * @returns { Array } 歌手对象数组
+     */
     singerRequest(catId) {
 
         option.url = `${url}${catId}&initial=-1`;
@@ -20,24 +25,28 @@ module.exports = {
 
             request(option, (error, res, body) => {
 
-                if (error) reject(error);
+                if (error) {
+                    reject(error);
+                    throw error;
+                };
 
-                let singerObj = [];
-                    $ = cheerio.load(body);
+                let singerList = [];
+                $ = cheerio.load(body);
 
                 $('.nm.nm-icn.f-thide.s-fc0').each((i, item) => {
 
                     let singerId = $(item).attr('href').match(/(?<==)\d+/)[0],
                         singerName = $(item).text();
 
-                    singerObj.push({
-                        'singerId':singerId,
-                        'singerName':singerName
+                    singerList.push({
+                        'singerId': singerId,
+                        'singerName': singerName,
+                        'singerType': catId
                     });
 
                 });
 
-                resolve(singerObj);
+                resolve(singerList);
 
             })
 

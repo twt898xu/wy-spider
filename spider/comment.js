@@ -1,7 +1,7 @@
 let request = require('request'),
     querystring = require('querystring');
 
-let url = 'https://music.163.com/song?id=',
+let url = 'http://music.163.com/weapi/v1/resource/comments/R_SO_4_', //评论获取地址
     postData = querystring.stringify({
         'params': 'IRxdefwoXs2Xc5wjf+7Q95AAn68tkXOtj0TF8o9lVMGLsgqg03tStZgMT6ybFyTHPu6vUaITbTW9P6YLtdnKukAim3BWyJrV+aHXkHs6KGOX7ODyJyZylCCtR0gs++Irr+mBxhdwJj09HP/4z5uaNDqZjzf/u8GXp5KCsQBV1oUWGHeKYN1L8jCbGpCZySOl',
         'encSecKey': '5bc7409cded7fbb2ba0f07d6adf59dd141a9dfdd173d94a1a7deebfe9b84870cf609990162517f3bf5678c0c464fef6b5d97518857b85e6f35368c2ff70387d497a0453e83ff421db85364525547e96120a2221cee1fd77cd8649066b9a726ab398c094b61be9bce1c27072fda4da5e974a2abd5d392ff8fff660c724e5b8a47'
@@ -28,18 +28,51 @@ let url = 'https://music.163.com/song?id=',
 
 module.exports = {
 
+    /**
+     * 根据歌曲id获取歌曲评论
+     * @param { Number } songId  歌曲id
+     * @returns 评论对象
+     */
     commonRequest(songId) {
 
         return new Promise((resolve, reject) => {
 
-            option.url = `http://music.163.com/weapi/v1/resource/comments/R_SO_4_${songId}?${postData}`;
+            option.url = `${url}${songId}?${postData}`;
             option.headers.Referer = `http://music.163.com/song?id=${songId}`;
 
             request(option, (error, res, body) => {
 
-                if (error) reject(error)
+                if (error) {
+                    reject(error);
+                    throw error;
+                };
 
-                resolve(body);
+                let data = JSON.parse(body),
+                    hotCommonts = data.hotCommonts.forEach((item, index) => {
+
+                        //返回每首歌曲的热评第一条评论或者点赞数大于10000的评论
+                        if (!index || likeCount > 10000) {
+
+                            return {
+                                commentId: item.commentId,
+                                songId: songId,
+                                commentContent: item.content,
+                                likeCount: item.likedCount,
+                                creatDate: item.time,
+                                commentator: {
+                                    personId: item.user.userId,
+                                    displayName: item.user.nickname,
+                                    avatar: item.user.avatarUrl
+                                }
+                            }
+                        }
+
+                    });
+
+                resolve({
+                    totalComent: data.total,
+                    hotCommonts: hotCommonts
+                });
 
             });
 
