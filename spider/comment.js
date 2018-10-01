@@ -1,5 +1,7 @@
 let request = require('request'),
+    superagent = require('superagent'),
     querystring = require('querystring');
+require('superagent-proxy')(superagent);
 
 let url = 'http://music.163.com/weapi/v1/resource/comments/R_SO_4_', //评论获取地址
     postData = querystring.stringify({
@@ -22,7 +24,8 @@ let url = 'http://music.163.com/weapi/v1/resource/comments/R_SO_4_', //评论获
             'Pragma': 'no-cache',
             'Referer': '',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
-        }
+        },
+        // proxy:'http://61.135.217.7:80/'
     };
 
 
@@ -48,30 +51,33 @@ module.exports = {
                 };
 
                 let data = JSON.parse(body),
-                    hotCommonts = data.hotCommonts.forEach((item, index) => {
+                    hotComments = [];
 
-                        //返回每首歌曲的热评第一条评论或者点赞数大于10000的评论
-                        if (!index || likeCount > 10000) {
+                data.hotComments.map((item, index) => {
 
-                            return {
-                                commentId: item.commentId,
-                                songId: songId,
-                                commentContent: item.content,
-                                likeCount: item.likedCount,
-                                creatDate: item.time,
-                                commentator: {
-                                    personId: item.user.userId,
-                                    displayName: item.user.nickname,
-                                    avatar: item.user.avatarUrl
-                                }
+                    //返回每首歌曲的热评第一条评论或者点赞数大于10000的评论
+                    if (!index || item.likeCount > 10000) {
+
+                        hotComments.push({
+                            commentId: item.commentId,
+                            songId: songId,
+                            commentContent: item.content,
+                            likeCount: item.likedCount,
+                            creatDate: item.time,
+                            commentator: {
+                                personId: item.user.userId,
+                                displayName: item.user.nickname,
+                                avatar: item.user.avatarUrl
                             }
-                        }
+                        })
+                    }
 
-                    });
+                });
 
+                console.log(`歌曲 ${songId} 评论已抓取完毕`);
                 resolve({
                     totalComent: data.total,
-                    hotCommonts: hotCommonts
+                    hotComments: hotComments
                 });
 
             });

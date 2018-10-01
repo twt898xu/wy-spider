@@ -32,10 +32,10 @@ module.exports = {
                 let $ = cheerio.load(body),
                     songlist = [];
 
-                $('#hotsong-list tr td:nth-child(2)').each((i, item) => {
+                $('#hotsong-list .f-hide a').each((i, item) => {
 
-                    let songId = $(item).find('a')[0].attr('href').match(/(?<==)\d+/)[0],
-                        songName = $(item).find('b')[0].attr('title');
+                    let songId = $(item).attr('href').match(/(?<==)\d+/)[0],
+                        songName = $(item).text();
 
                     songlist.push({
                         'songId': songId,
@@ -46,7 +46,7 @@ module.exports = {
                 });
 
                 console.log(`-------------- 歌手 ${singerId} 爬取完毕`);
-                resolve(singerIds);
+                resolve(songlist);
 
             })
 

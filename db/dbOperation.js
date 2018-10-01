@@ -4,7 +4,7 @@ let mongoose = require('mongoose'),
 let db = mongoose.connect("mongodb://127.0.0.1:27017/wy");
 
 let singerModal = mongoose.model('singer', screma.singerSchema),
-    songSchema = mongoose.model('song', screma.songSchema),
+    songModel = mongoose.model('song', screma.songSchema),
     commentModal = mongoose.model('comment', screma.commentSchema);
 
 let singer = [{
@@ -70,7 +70,7 @@ module.exports = {
      */
     saveSong: function (data) {
 
-        songSchema.create(data, (err) => {
+        songModel.create(data, (err) => {
 
             if (err) {
 
@@ -101,6 +101,74 @@ module.exports = {
             }
 
             console.log('成功  =====  评论数据已存储');
+
+        });
+
+    },
+
+    /**
+     * 获取所有歌手的id
+     */
+    findAllSingerId: function () {
+
+        return new Promise((resolve,reject)=>{
+
+            singerModal.find({}, { singerId:1 , _id:0 }, (err, data) => {
+
+                if (err) {
+                    console.log('获取所有歌手Id失败！！！');
+                    reject(err);
+                    throw err;
+                }
+    
+                console.log(`共 ${data.length} 条数据`);
+                resolve(data);
+    
+            })
+
+        });
+
+    },
+
+    /**
+     * 获取评论数为-1的所有歌曲
+     */
+    findAllSongId:function(){
+
+        return new Promise((resolve,reject)=>{
+
+            songModel.find({'commentCount':-1}, { songId:1 }, (err, data) => {
+
+                if (err) {
+                    console.log('获取所有歌曲Id失败！！！');
+                    reject(err);
+                    throw err;
+                }
+    
+                console.log(`共 ${data.length} 首歌曲`);
+                resolve(data);
+    
+            })
+
+        });
+
+    },
+
+    updateSong:function(id,update){
+
+        return new Promise((resolve,reject)=>{
+
+            songModel.update({_id:id},{$set:update},(err)=>{
+
+                if(err){
+                    reject(err);
+                    throw err;
+                }
+
+                console.log('歌曲评论数更新成功',id);
+                resolve();
+
+            });  
 
         });
 
