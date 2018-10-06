@@ -1,45 +1,11 @@
 let mongoose = require('mongoose'),
     screma = require('./dbSchema');
 
-let db = mongoose.connect("mongodb://127.0.0.1:27017/wy");
+mongoose.connect("mongodb://127.0.0.1:27017/wy");
 
 let singerModal = mongoose.model('singer', screma.singerSchema),
     songModel = mongoose.model('song', screma.songSchema),
     commentModal = mongoose.model('comment', screma.commentSchema);
-
-let singer = [{
-        singerId: '123',
-        singerName: '着成功',
-        singerType: 1001,
-        songs: [{
-                songId: 'aaaa',
-                songName: 'aiaiaiai', //歌曲名称
-                commentCount: 100 //评论数
-            },
-            {
-                songId: 'bbbb',
-                songName: 'bibibibibi', //歌曲名称
-                commentCount: 101 //评论数
-            }
-        ]
-    },
-    {
-        singerId: '123',
-        singerName: '吗大力',
-        singerType: 1001,
-        songs: [{
-                songId: 'aaaa',
-                songName: 'aiaiaiai', //歌曲名称
-                commentCount: 100 //评论数
-            },
-            {
-                songId: 'bbbb',
-                songName: 'bibibibibi', //歌曲名称
-                commentCount: 101 //评论数
-            }
-        ]
-    }
-]
 
 module.exports = {
 
@@ -154,6 +120,11 @@ module.exports = {
 
     },
 
+    /**
+     * 更新歌曲的评论数量
+     * @param {String} 歌曲id
+     * @param {Object} 更新内容
+     */
     updateSong:function(id,update){
 
         return new Promise((resolve,reject)=>{

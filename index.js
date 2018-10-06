@@ -6,74 +6,47 @@ let song = require('./spider/song'),
 
 let catIds = [1001, 1002, 1003, 2001, 2002, 2003, 6001, 6002, 6003, 7001, 7002, 7003, 4001, 4002, 4003]; //华语男歌手 ，华语女歌手 ，华语组合 ,欧美男 欧美女 欧美组合
 
-startRequest = async (id) => {
+//抓取歌手信息
+for (let catId of catIds) {
 
-    let result = await song.requestSong(id);
-    let commons = await common.commonRequest(id);
-    console.log(result);
-    console.log(commons);
+    (async () => {
+
+        let result = await singer.singerRequest(catId);
+        db.saveSinger(result);
+
+    })()
+
 }
 
-// (async () => {
 
-//     let result = await singer.singerRequest(1001);
-//     //fs.writeFile('singerJson.txt',JSON.stringify(result));
+//抓取歌曲信息
+let singerList = [],
+    songCount = 1;
+async function startSongRequest() {
 
-//     db.connectDB(result);
-//     console.log('数据写入成功');
+    if (!singerList.length) return false;
+    console.log(`第 ${songCount++} 位歌手`);
 
-// })();
+    let data = await song.requestSong(singerList.shift().singerId);
+    await db.saveSong(data);
+    startSongRequest();
 
-// for (let singerId of catIds) {
+}
 
-//     (async () => {
+(async () => {
 
-//         let result = await singer.singerRequest(singerId);
-//         db.saveSinger(result);
+    singerList = await db.findAllSingerId();
+    startSongRequest();
 
-//     })()
+})();
 
-// }
 
-// function sleep() {
-
-//     return new Promise((resolve) => {
-
-//         setTimeout(() => {
-
-//             resolve('1231');
-
-//         }, 5000);
-
-//     });
-
-// }
-
-// let singerList = [],
-//     songCount = 1;
-// async function startSongRequest() {
-
-//     if (!singerList.length) return false;
-//     console.log(`第 ${songCount++} 位歌手`);
-
-//     let data = await song.requestSong(singerList.shift().singerId);
-//     await db.saveSong(data);
-//     startSongRequest();
-
-// }
-
-// (async () => {
-
-//     singerList = await db.findAllSingerId();
-//     startSongRequest();
-
-// })();
-
+//抓取评论信息
 let songList = [],
     songCount = 1;
 async function startCommentRequest() {
 
-    if (!songList.length || songCount === 4000 ) {
+    if (!songList.length ) {
 
         console.log(' ===== 抓取完毕 ====== ');
         return false;

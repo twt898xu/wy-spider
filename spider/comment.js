@@ -1,7 +1,5 @@
 let request = require('request'),
-    superagent = require('superagent'),
     querystring = require('querystring');
-require('superagent-proxy')(superagent);
 
 let url = 'http://music.163.com/weapi/v1/resource/comments/R_SO_4_', //评论获取地址
     postData = querystring.stringify({
